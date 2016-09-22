@@ -1,0 +1,33 @@
+build:
+  image: framgia/rails-workspace
+  commands:
+    - bundle install
+    - RAILS_ENV=test rake db:create
+    - RAILS_ENV=test rake db:migrate
+    - rake cucumber
+  environemnt:
+    DATABASE_USERNAME_TEST: test
+    DATABASE_PASSWORD_TEST: test
+    DATABASE_DB_NAME_TEST: demo
+    DATABASE_HOSTNAME_TEST: 127.0.0.1
+
+compose:
+  database:
+    image: mysql
+    environment:
+      MYSQL_DATABASE: demo
+      MYSQL_USER: test
+      MYSQL_PASSWORD: test
+      MYSQL_ROOT_PASSWORD: root
+
+deploy:
+  capistrano:
+    image: fdplugins/capistrano
+    when:
+      branch: deploy
+    commands:
+      - cap production deploy
+cache:
+  mount:
+    - .git
+    - vendor
